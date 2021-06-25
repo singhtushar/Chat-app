@@ -1,4 +1,6 @@
 /* General Styles */
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300&display=swap');
 
 * {
     margin: 0;
@@ -17,11 +19,12 @@ input {
 body {
     line-height: 1.4;
     color: #333333;
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: 'Noto Sans JP', sans-serif;
 }
 
 h1 {
     margin-bottom: 16px;
+    font-family: "Oswald", sans-serif;
 }
 
 label {
@@ -61,7 +64,7 @@ button:disabled {
 .centered-form {
     background: #333744;
     width: 100vw;
-    height: 100vh;   
+    height: 80vh;   
     display: flex;
     justify-content: center;
     align-items: center;
