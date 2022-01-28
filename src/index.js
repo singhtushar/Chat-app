@@ -3,7 +3,12 @@ const http = require("http");
 const express = require("express");
 const socketio = require("socket.io");
 const { generateMessage } = require("./utils/messages");
-const { addUser, removeUser, getUser, getUsersInRoom } = require("./utils/users");
+const {
+  addUser,
+  removeUser,
+  getUser,
+  getUsersInRoom,
+} = require("./utils/users");
 
 const app = express();
 const server = http.createServer(app);
@@ -17,32 +22,33 @@ const publicDirectoryPath = path.join("__dirname", "../public");
 
 app.use(express.static(publicDirectoryPath));
 
-io.on('connection', (socket)=>{
-
-  socket.on("newMsg", (msg, callback)=>{
+io.on("connection", (socket) => {
+  socket.on("newMsg", (msg, callback) => {
     const user = getUser(socket.id);
-    io.to(user.room).emit('message', generateMessage(user.username, msg));
+    io.to(user.room).emit("message", generateMessage(user.username, msg));
     callback();
-  })
+  });
 
   socket.on("sendLocation", (loc, callback) => {
     const user = getUser(socket.id);
     io.to(user.room).emit(
       "locationMessage",
-      generateMessage(user.username, `https://google.com/maps?q=${loc.lat},${loc.long}`)
+      generateMessage(
+        user.username,
+        `https://google.com/maps?q=${loc.lat},${loc.long}`
+      )
     );
     callback();
   });
 
-  socket.on('join', ({ username, room }, callback)=>{
-    
+  socket.on("join", ({ username, room }, callback) => {
     const { error, user } = addUser({
       id: socket.id,
       username,
-      room
-    })
+      room,
+    });
 
-    if(error){
+    if (error) {
       return callback(error);
     }
 
@@ -53,27 +59,30 @@ io.on('connection', (socket)=>{
 
     socket.emit("message", generateMessage(user.username, "Welcome!!"));
     // broadcasts the message to every user except the current user
-    socket.broadcast.to(room).emit("message", generateMessage('Admin', `${username} has joined`));
+    socket.broadcast
+      .to(room)
+      .emit("message", generateMessage("Admin", `${username} has joined`));
 
-    io.to(user.room).emit('roomData', {
+    io.to(user.room).emit("roomData", {
       room: user.room,
-      users: getUsersInRoom(user.room)
-    })
-
-  })
+      users: getUsersInRoom(user.room),
+    });
+  });
 
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);
-    if(user){
-      io.to(user.room).emit("message", generateMessage('Admin', `${user.username} has left`));
-      io.to(user.room).emit('roomData', {
+    if (user) {
+      io.to(user.room).emit(
+        "message",
+        generateMessage("Admin", `${user.username} has left`)
+      );
+      io.to(user.room).emit("roomData", {
         room: user.room,
-        users: getUsersInRoom(user.room)
-      })
+        users: getUsersInRoom(user.room),
+      });
     }
   });
-
-})
+});
 
 server.listen(PORT, () => {
   console.log(`Server running at port ${PORT}!`);
